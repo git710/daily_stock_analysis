@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===================================
 A股自选股智能分析系统 - 通知层
@@ -14,20 +13,20 @@ A股自选股智能分析系统 - 通知层
    - 邮件 SMTP
 """
 
-import logging
-import smtplib
-import re
-from datetime import datetime, timezone, timedelta
-from typing import List, Dict, Any, Optional
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from datetime import datetime, timedelta, timezone
 from email.header import Header
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from enum import Enum
+import logging
+import re
+import smtplib
+from typing import Optional
 
 import requests
 
-from config import get_config
 from analyzer import AnalysisResult
+from config import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +152,7 @@ class NotificationService:
                 f"已配置 {len(self._available_channels)} 个通知渠道：{', '.join(channel_names)}"
             )
 
-    def _detect_all_channels(self) -> List[NotificationChannel]:
+    def _detect_all_channels(self) -> list[NotificationChannel]:
         """
         检测所有已配置的渠道
 
@@ -198,7 +197,7 @@ class NotificationService:
         """检查通知服务是否可用（至少有一个渠道）"""
         return len(self._available_channels) > 0
 
-    def get_available_channels(self) -> List[NotificationChannel]:
+    def get_available_channels(self) -> list[NotificationChannel]:
         """获取所有已配置的渠道"""
         return self._available_channels
 
@@ -209,7 +208,7 @@ class NotificationService:
         )
 
     def generate_daily_report(
-        self, results: List[AnalysisResult], report_date: Optional[str] = None
+        self, results: list[AnalysisResult], report_date: Optional[str] = None
     ) -> str:
         """
         生成 Markdown 格式的日报（详细版）
@@ -257,8 +256,8 @@ class NotificationService:
             [
                 "## 📊 操作建议汇总",
                 "",
-                f"| 指标 | 数值 |",
-                f"|------|------|",
+                "| 指标 | 数值 |",
+                "|------|------|",
                 f"| 🟢 建议买入/加仓 | **{buy_count}** 只 |",
                 f"| 🟡 建议持有/观望 | **{hold_count}** 只 |",
                 f"| 🔴 建议减仓/卖出 | **{sell_count}** 只 |",
@@ -413,7 +412,7 @@ class NotificationService:
 
             # 数据来源说明
             if hasattr(result, "search_performed") and result.search_performed:
-                report_lines.append(f"*🔍 已执行联网搜索*")
+                report_lines.append("*🔍 已执行联网搜索*")
             if hasattr(result, "data_sources") and result.data_sources:
                 report_lines.append(f"*📋 数据来源：{result.data_sources}*")
 
@@ -470,7 +469,7 @@ class NotificationService:
             return ("观望", "⚪", "观望")
 
     def generate_dashboard_report(
-        self, results: List[AnalysisResult], report_date: Optional[str] = None
+        self, results: list[AnalysisResult], report_date: Optional[str] = None
     ) -> str:
         """
         生成决策仪表盘格式的日报（详细版）
@@ -802,7 +801,7 @@ class NotificationService:
 
         return "\n".join(report_lines)
 
-    def generate_wechat_dashboard(self, results: List[AnalysisResult]) -> str:
+    def generate_wechat_dashboard(self, results: list[AnalysisResult]) -> str:
         """
         生成企业微信决策仪表盘精简版（控制在4000字符内）
 
@@ -969,7 +968,7 @@ class NotificationService:
 
         return content
 
-    def generate_wechat_summary(self, results: List[AnalysisResult]) -> str:
+    def generate_wechat_summary(self, results: list[AnalysisResult]) -> str:
         """
         生成企业微信精简版日报（控制在4000字符内）
 
@@ -1915,7 +1914,7 @@ class NotificationBuilder:
         return f"{emoji} **{title}**\n\n{content}"
 
     @staticmethod
-    def build_stock_summary(results: List[AnalysisResult]) -> str:
+    def build_stock_summary(results: list[AnalysisResult]) -> str:
         """
         构建股票摘要（简短版）
 
@@ -1938,7 +1937,7 @@ def get_notification_service() -> NotificationService:
     return NotificationService()
 
 
-def send_daily_report(results: List[AnalysisResult]) -> bool:
+def send_daily_report(results: list[AnalysisResult]) -> bool:
     """
     发送每日报告的快捷方式
 
@@ -1997,7 +1996,7 @@ if __name__ == "__main__":
     service = NotificationService()
 
     # 显示检测到的渠道
-    print(f"=== 通知渠道检测 ===")
+    print("=== 通知渠道检测 ===")
     print(f"当前渠道: {service.get_channel_name()}")
     print(f"渠道类型: {service.get_channel()}")
     print(f"服务可用: {service.is_available()}")

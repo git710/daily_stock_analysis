@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===================================
 A股自选股智能分析系统 - 主调度程序
@@ -32,28 +31,28 @@ if os.getenv("GITHUB_ACTIONS") != "true":
     pass
 
 import argparse
-import logging
-import sys
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
+import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+import sys
+import time
+from typing import Any, Optional
 
-from config import get_config, Config
-from storage import get_db, DatabaseManager
+from analyzer import STOCK_NAME_MAP, AnalysisResult, GeminiAnalyzer
+from config import Config, get_config
 from data_provider import DataFetcherManager
 from data_provider.akshare_fetcher import (
     AkshareFetcher,
-    RealtimeQuote,
     ChipDistribution,
+    RealtimeQuote,
 )
-from analyzer import GeminiAnalyzer, AnalysisResult, STOCK_NAME_MAP
-from notification import NotificationService, send_daily_report
-from search_service import SearchService, SearchResponse
-from stock_analyzer import StockTrendAnalyzer, TrendAnalysisResult
 from market_analyzer import MarketAnalyzer
+from notification import NotificationService
+from search_service import SearchService
+from stock_analyzer import StockTrendAnalyzer, TrendAnalysisResult
+from storage import get_db
 
 # 配置日志格式
 LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)-20s | %(message)s"
@@ -196,7 +195,7 @@ class StockAnalysisPipeline:
 
     def fetch_and_save_stock_data(
         self, code: str, force_refresh: bool = False, target_date: Optional[date] = None
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> tuple[bool, Optional[str]]:
         """
         获取并保存单只股票数据
 
@@ -372,12 +371,12 @@ class StockAnalysisPipeline:
 
     def _enhance_context(
         self,
-        context: Dict[str, Any],
+        context: dict[str, Any],
         realtime_quote: Optional[RealtimeQuote],
         chip_data: Optional[ChipDistribution],
         trend_result: Optional[TrendAnalysisResult],
         stock_name: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         增强分析上下文
 
@@ -533,10 +532,10 @@ class StockAnalysisPipeline:
 
     def run(
         self,
-        stock_codes: Optional[List[str]] = None,
+        stock_codes: Optional[list[str]] = None,
         dry_run: bool = False,
         send_notification: bool = True,
-    ) -> List[AnalysisResult]:
+    ) -> list[AnalysisResult]:
         """
         运行完整的分析流程
 
@@ -570,7 +569,7 @@ class StockAnalysisPipeline:
             f"并发数: {self.max_workers}, 模式: {'仅获取数据' if dry_run else '完整分析'}"
         )
 
-        results: List[AnalysisResult] = []
+        results: list[AnalysisResult] = []
 
         # 使用线程池并发处理
         # 注意：max_workers 设置较低（默认3）以避免触发反爬
@@ -607,7 +606,7 @@ class StockAnalysisPipeline:
             success_count = len(results)
             fail_count = len(stock_codes) - success_count
 
-        logger.info(f"===== 分析完成 =====")
+        logger.info("===== 分析完成 =====")
         logger.info(
             f"成功: {success_count}, 失败: {fail_count}, 耗时: {elapsed_time:.2f} 秒"
         )
@@ -618,7 +617,7 @@ class StockAnalysisPipeline:
 
         return results
 
-    def _send_notifications(self, results: List[AnalysisResult]) -> None:
+    def _send_notifications(self, results: list[AnalysisResult]) -> None:
         """
         发送分析结果通知
 
@@ -751,7 +750,7 @@ def run_market_review(
 
 
 def run_full_analysis(
-    config: Config, args: argparse.Namespace, stock_codes: Optional[List[str]] = None
+    config: Config, args: argparse.Namespace, stock_codes: Optional[list[str]] = None
 ):
     """
     执行完整的分析流程（个股 + 大盘复盘）

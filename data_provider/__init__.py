@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===================================
 数据源策略层 - 包初始化
@@ -10,17 +9,17 @@
 3. 防封禁流控策略
 """
 
-from .base import BaseFetcher, DataFetcherManager
 from .akshare_fetcher import AkshareFetcher
-from .tushare_fetcher import TushareFetcher
 from .baostock_fetcher import BaostockFetcher
+from .base import BaseFetcher, DataFetcherManager
+from .tushare_fetcher import TushareFetcher
 from .yfinance_fetcher import YfinanceFetcher
 
 __all__ = [
-    'BaseFetcher',
-    'DataFetcherManager',
-    'AkshareFetcher',
-    'TushareFetcher',
-    'BaostockFetcher',
-    'YfinanceFetcher',
+    "BaseFetcher",
+    "DataFetcherManager",
+    "AkshareFetcher",
+    "TushareFetcher",
+    "BaostockFetcher",
+    "YfinanceFetcher",
 ]

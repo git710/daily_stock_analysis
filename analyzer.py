@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===================================
 A股自选股智能分析系统 - AI分析层
@@ -10,19 +9,11 @@ A股自选股智能分析系统 - AI分析层
 3. 结合技术面和消息面生成分析报告
 """
 
+from dataclasses import dataclass
 import json
 import logging
 import time
-from dataclasses import dataclass
-from typing import Optional, Dict, Any, List
-
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_exponential,
-    retry_if_exception_type,
-    before_sleep_log,
-)
+from typing import Any, Optional
 
 from config import get_config
 
@@ -69,7 +60,7 @@ class AnalysisResult:
     confidence_level: str = "中"  # 置信度：高/中/低
 
     # ========== 决策仪表盘 (新增) ==========
-    dashboard: Optional[Dict[str, Any]] = None  # 完整的决策仪表盘数据
+    dashboard: Optional[dict[str, Any]] = None  # 完整的决策仪表盘数据
 
     # ========== 走势分析 ==========
     trend_analysis: str = ""  # 走势形态分析（支撑位、压力位、趋势线等）
@@ -105,7 +96,7 @@ class AnalysisResult:
     success: bool = True
     error_message: Optional[str] = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return {
             "code": self.code,
@@ -155,19 +146,19 @@ class AnalysisResult:
             return pos_advice.get("no_position", self.operation_advice)
         return self.operation_advice
 
-    def get_sniper_points(self) -> Dict[str, str]:
+    def get_sniper_points(self) -> dict[str, str]:
         """获取狙击点位"""
         if self.dashboard and "battle_plan" in self.dashboard:
             return self.dashboard["battle_plan"].get("sniper_points", {})
         return {}
 
-    def get_checklist(self) -> List[str]:
+    def get_checklist(self) -> list[str]:
         """获取检查清单"""
         if self.dashboard and "battle_plan" in self.dashboard:
             return self.dashboard["battle_plan"].get("action_checklist", [])
         return []
 
-    def get_risk_alerts(self) -> List[str]:
+    def get_risk_alerts(self) -> list[str]:
         """获取风险警报"""
         if self.dashboard and "intelligence" in self.dashboard:
             return self.dashboard["intelligence"].get("risk_alerts", [])
@@ -258,7 +249,7 @@ class GeminiAnalyzer:
     "trend_prediction": "强烈看多/看多/震荡/看空/强烈看空",
     "operation_advice": "买入/加仓/持有/减仓/卖出/观望",
     "confidence_level": "高/中/低",
-    
+
     "dashboard": {
         "core_conclusion": {
             "one_sentence": "一句话核心结论（30字以内，直接告诉用户做什么）",
@@ -269,7 +260,7 @@ class GeminiAnalyzer:
                 "has_position": "持仓者建议：具体操作指引"
             }
         },
-        
+
         "data_perspective": {
             "trend_status": {
                 "ma_alignment": "均线排列状态描述",
@@ -299,7 +290,7 @@ class GeminiAnalyzer:
                 "chip_health": "健康/一般/警惕"
             }
         },
-        
+
         "intelligence": {
             "latest_news": "【最新消息】近期重要新闻摘要",
             "risk_alerts": ["风险点1：具体描述", "风险点2：具体描述"],
@@ -307,7 +298,7 @@ class GeminiAnalyzer:
             "earnings_outlook": "业绩预期分析（基于年报预告、业绩快报等）",
             "sentiment_summary": "舆情情绪一句话总结"
         },
-        
+
         "battle_plan": {
             "sniper_points": {
                 "ideal_buy": "理想买入点：XX元（在MA5附近）",
@@ -329,12 +320,12 @@ class GeminiAnalyzer:
             ]
         }
     },
-    
+
     "analysis_summary": "100字综合分析摘要",
     "key_points": "3-5个核心看点，逗号分隔",
     "risk_warning": "风险提示",
     "buy_reason": "操作理由，引用交易理念",
-    
+
     "trend_analysis": "走势形态分析",
     "short_term_outlook": "短期1-3日展望",
     "medium_term_outlook": "中期1-2周展望",
@@ -348,7 +339,7 @@ class GeminiAnalyzer:
     "news_summary": "新闻摘要",
     "market_sentiment": "市场情绪",
     "hot_topics": "相关热点",
-    
+
     "search_performed": true/false,
     "data_sources": "数据来源说明"
 }
@@ -705,7 +696,7 @@ class GeminiAnalyzer:
                 return self._call_openai_api(prompt, generation_config)
             except Exception as openai_error:
                 logger.error(f"[OpenAI] 备选 API 也失败: {openai_error}")
-                raise last_error or openai_error
+                raise last_error or openai_error from openai_error
         elif config.openai_api_key and config.openai_base_url:
             # 尝试懒加载初始化 OpenAI
             logger.warning("[Gemini] 所有重试失败，尝试初始化 OpenAI 兼容 API")
@@ -715,13 +706,13 @@ class GeminiAnalyzer:
                     return self._call_openai_api(prompt, generation_config)
                 except Exception as openai_error:
                     logger.error(f"[OpenAI] 备选 API 也失败: {openai_error}")
-                    raise last_error or openai_error
+                    raise last_error or openai_error from openai_error
 
         # 所有方式都失败
         raise last_error or Exception("所有 AI API 调用失败，已达最大重试次数")
 
     def analyze(
-        self, context: Dict[str, Any], news_context: Optional[str] = None
+        self, context: dict[str, Any], news_context: Optional[str] = None
     ) -> AnalysisResult:
         """
         分析单只股票
@@ -854,7 +845,7 @@ class GeminiAnalyzer:
             )
 
     def _format_prompt(
-        self, context: Dict[str, Any], name: str, news_context: Optional[str] = None
+        self, context: dict[str, Any], name: str, news_context: Optional[str] = None
     ) -> str:
         """
         格式化分析提示词（决策仪表盘 v2.0）
@@ -1126,7 +1117,7 @@ class GeminiAnalyzer:
                 )
             else:
                 # 没有找到 JSON，尝试从纯文本中提取信息
-                logger.warning(f"无法从响应中提取 JSON，使用原始文本分析")
+                logger.warning("无法从响应中提取 JSON，使用原始文本分析")
                 return self._parse_text_response(response_text, code, name)
 
         except json.JSONDecodeError as e:
@@ -1221,8 +1212,8 @@ class GeminiAnalyzer:
         )
 
     def batch_analyze(
-        self, contexts: List[Dict[str, Any]], delay_between: float = 2.0
-    ) -> List[AnalysisResult]:
+        self, contexts: list[dict[str, Any]], delay_between: float = 2.0
+    ) -> list[AnalysisResult]:
         """
         批量分析多只股票
 
