@@ -36,7 +36,7 @@ import logging
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
