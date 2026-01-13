@@ -57,16 +57,15 @@ class AnalysisResult:
     封装 Gemini 返回的分析结果，包含决策仪表盘和详细分析
     """
 
+    # ========== 必填字段（无默认值，必须在前） ==========
     code: str
     name: str
-
-    # ========== 类型标识 ==========
-    is_etf: bool = False  # 是否为 ETF 基金
-
-    # ========== 核心指标 ==========
     sentiment_score: int  # 综合评分 0-100 (>70强烈看多, >60看多, 40-60震荡, <40看空)
     trend_prediction: str  # 趋势预测：强烈看多/看多/震荡/看空/强烈看空
     operation_advice: str  # 操作建议：买入/加仓/持有/减仓/卖出/观望
+
+    # ========== 可选字段（有默认值，必须在后） ==========
+    is_etf: bool = False  # 是否为 ETF 基金
     confidence_level: str = "中"  # 置信度：高/中/低
 
     # ========== 决策仪表盘 (新增) ==========
