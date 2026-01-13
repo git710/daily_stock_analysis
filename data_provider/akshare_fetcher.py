@@ -210,7 +210,15 @@ def _is_etf_code(stock_code: str) -> bool:
 
     # 扩展 ETF 前缀范围
     etf_prefixes = ('51', '52', '56', '58', '15', '16', '18', '501', '502')
-    return clean_code.startswith(etf_prefixes) and len(clean_code) == 6
+    is_etf = clean_code.startswith(etf_prefixes) and len(clean_code) == 6
+    
+    # 记录判断结果
+    if is_etf:
+        logger.debug(f"[代码判断] {stock_code} (清理后: {clean_code}) 是 ETF 代码")
+    else:
+        logger.debug(f"[代码判断] {stock_code} (清理后: {clean_code}) 是普通股票代码")
+    
+    return is_etf
 
 
 class AkshareFetcher(BaseFetcher):
