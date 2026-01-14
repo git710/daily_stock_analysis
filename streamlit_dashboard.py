@@ -63,7 +63,6 @@ class StockDashboard:
         self.fetcher = AkshareFetcher()
         self.config = get_config()
 
-    @st.cache_data(ttl=300)  # 5分钟缓存
     def get_stock_data(self, code: str, days: int = 60):
         """获取股票数据（缓存）"""
         try:
@@ -79,7 +78,6 @@ class StockDashboard:
             st.error(f"数据获取失败: {e}")
         return None
 
-    @st.cache_data(ttl=60)  # 1分钟缓存
     def get_realtime_quote(self, code: str):
         """实时行情（缓存）"""
         try:
@@ -87,7 +85,6 @@ class StockDashboard:
         except:
             return None
 
-    @st.cache_data(ttl=60)
     def get_chip_distribution(self, code: str):
         """筹码分布（缓存）"""
         try:
