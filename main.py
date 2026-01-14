@@ -88,6 +88,8 @@ def setup_logging(debug: bool = False, log_dir: str = "./logs") -> None:
     """
     配置日志系统（同时输出到控制台和文件）
 
+    每次运行时会清空已存在的日志文件，确保每次运行的日志独立清晰
+
     Args:
         debug: 是否启用调试模式
         log_dir: 日志文件目录
@@ -103,6 +105,12 @@ def setup_logging(debug: bool = False, log_dir: str = "./logs") -> None:
     log_file = log_path / f"stock_analysis_{today_str}.log"
     debug_log_file = log_path / f"stock_analysis_debug_{today_str}.log"
 
+    # 清空已存在的日志文件（每次运行都重新开始）
+    # 使用 mode='w' 而不是默认的 mode='a' 来实现清空
+    for log_f in [log_file, debug_log_file]:
+        if log_f.exists():
+            log_f.write_text("", encoding="utf-8")  # 清空文件内容
+
     # 创建根 logger
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)  # 根 logger 设为 DEBUG，由 handler 控制输出级别
@@ -114,8 +122,10 @@ def setup_logging(debug: bool = False, log_dir: str = "./logs") -> None:
     root_logger.addHandler(console_handler)
 
     # Handler 2: 常规日志文件（INFO 级别，10MB 轮转）
+    # 使用 mode='w' 每次运行清空文件，但轮转时仍保留旧文件
     file_handler = RotatingFileHandler(
         log_file,
+        mode='w',  # 关键修改：每次运行清空文件
         maxBytes=10 * 1024 * 1024,  # 10MB
         backupCount=5,
         encoding="utf-8",
@@ -127,6 +137,7 @@ def setup_logging(debug: bool = False, log_dir: str = "./logs") -> None:
     # Handler 3: 调试日志文件（DEBUG 级别，包含所有详细信息）
     debug_handler = RotatingFileHandler(
         debug_log_file,
+        mode='w',  # 关键修改：每次运行清空文件
         maxBytes=50 * 1024 * 1024,  # 50MB
         backupCount=3,
         encoding="utf-8",
